@@ -29,7 +29,6 @@ export class FeedbackController {
   @Public()
   @Get(':id')
   async get(@Res() res: any, @Param() param: any) {
-    console.log(param);
     const data = await this.feedbackService.getList(param);
     return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }

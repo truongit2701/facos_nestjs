@@ -13,7 +13,7 @@ import { Order } from './order.entity';
 interface ProductSubset
   extends Pick<Product, 'title' | 'price' | 'image' | 'id'>,
     BaseModel {
-  sizeValue: string;
+  sizeActive: string;
 }
 
 @Entity('productOrder')
@@ -22,7 +22,7 @@ export class ProductOrder extends Product implements ProductSubset {
   id: number;
 
   @Column()
-  sizeValue: string;
+  sizeActive: string;
 
   @Column({ default: 1 })
   quantity: number;

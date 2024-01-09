@@ -16,21 +16,21 @@ import { OrderService } from './order.service';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
-  @Public()
-  @Post('checkout')
-  test() {
-    const result = this.orderService.test();
-    return result;
-  }
+  // @Public()
+  // @Post('checkout')
+  // test() {
+  //   const result = this.orderService.test();
+  //   return result;
+  // }
 
   @Post()
-  create(
+  async create(
     @Res() res: any,
     @GetCurrentUserId() userId: number,
     @Body() createOrderDto: any,
   ) {
-    this.orderService.create(userId, createOrderDto.data);
-    return res.status(HttpStatus.OK).send(new BaseResponse({}));
+    const data = await this.orderService.create(userId, createOrderDto.data);
+    return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }
 
   @Get()
@@ -63,7 +63,7 @@ export class OrderController {
     return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }
 
-  @Get(':id')
+  @Get('detail/:id')
   async findOne(@Param('id') id: string) {
     return new BaseResponse({ data: await this.orderService.findOne(+id) });
   }
@@ -78,5 +78,11 @@ export class OrderController {
   changeStatus(@Res() res: any, @Param('id') id: string, @Body() body: any) {
     this.orderService.changeStatus(+id, body.date);
     return res.status(HttpStatus.OK).send(new BaseResponse({}));
+  }
+
+  @Get('/quantity')
+  async count(@Res() res: any, @GetCurrentUserId() userId: number) {
+    const data = await this.orderService.count(userId);
+    return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }
 }

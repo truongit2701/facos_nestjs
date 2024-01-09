@@ -23,4 +23,17 @@ export class IncomeController {
     const data = await this.incomeService.getTopSelling();
     return new BaseResponse({ data });
   }
+
+  @Get('/summary/')
+  async getSummary() {
+    const data = await this.incomeService.getSummary();
+    return new BaseResponse({ data });
+  }
+
+  /** ORDERS */
+  @Get('pending')
+  async getPendingOrder() {
+    const data = await this.incomeService.getPendingOrder();
+    return new BaseResponse({ data });
+  }
 }

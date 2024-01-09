@@ -38,5 +38,5 @@ export class Product extends BaseModel {
   code: string;
 
   @Column({ nullable: true })
-  sizes: string;
+  size: string;
 }

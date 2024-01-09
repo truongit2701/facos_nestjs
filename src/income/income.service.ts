@@ -27,6 +27,7 @@ export class IncomeService {
       .andWhere('order.created_at <= :endDate', {
         endDate: `${year}-12-31T23:59:59.999Z`,
       })
+      .andWhere('order.status != :status', { status: 3 })
       .groupBy(
         'EXTRACT(YEAR FROM order.created_at), EXTRACT(MONTH FROM order.created_at)',
       )
@@ -37,7 +38,7 @@ export class IncomeService {
 
   async getStats(time: any) {
     const [year, month] = time.split('-').map(Number);
-
+    console.log(year, month);
     const getStartDate = (year: number, month: number) =>
       new Date(`${year}-${month < 10 ? `0${month}` : month}-01T00:00:00.000Z`);
     const getEndDate = (year: number, month: number) =>
@@ -144,5 +145,29 @@ export class IncomeService {
       .limit(3)
       .getRawMany();
     return data;
+  }
+
+  async getSummary() {
+    const revenue = await this.orderRepo
+      .createQueryBuilder('order')
+      .where('order.status != :status', { status: 3 })
+      .select('SUM(order.total)', 'revenue')
+      .getRawOne();
+
+    const customer = await this.userRepo
+      .createQueryBuilder('u')
+      .where('u.isAdmin != :isAdmin', { isAdmin: 1 })
+      .getCount();
+
+    const product = await this.productRepo.count();
+
+    return {
+      ...revenue,
+      customer,
+      product,
+    };
+  }
+  async getPendingOrder() {
+    return await this.orderRepo.find({ where: { status: 0 } });
   }
 }

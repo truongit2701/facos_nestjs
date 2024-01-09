@@ -22,6 +22,7 @@ import { NotificationController } from './notification/notification.controller';
 import { Notify } from './entities/notify.entity';
 import { NotificationService } from './notification/notification.service';
 import { NotificationModule } from './notification/notification.module';
+import { NotiToken } from './entities/token-firebase';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { NotificationModule } from './notification/notification.module';
         ProductOrder,
         FeedBack,
         Notify,
+        NotiToken,
       ],
       synchronize: true,
     }),

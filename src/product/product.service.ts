@@ -16,9 +16,8 @@ export class ProductService {
     const { title, price, description, category, style, image, size } =
       createProductDto;
 
-    const code = title;
+    const code = Math.random() * 100000;
 
-    const sizes = JSON.stringify(size.map((item: any) => item.value));
     const newProduct = await this.productRepo
       .create({
         image,
@@ -27,8 +26,8 @@ export class ProductService {
         category,
         style,
         title,
-        code,
-        sizes,
+        code: code.toFixed(0).toString(),
+        size: JSON.stringify(size.map((item: any) => item.value)),
       })
       .save();
 
@@ -47,7 +46,9 @@ export class ProductService {
     const querySQL = this.productRepo.createQueryBuilder('p');
 
     const keySearch = query?.key_search || '';
+    const category = query?.category;
     querySQL.where('p.title LIKE :keyword', { keyword: `%${keySearch}%` });
+    category && querySQL.andWhere('p.category = :category', { category });
     querySQL.orderBy('p.created_at', 'DESC');
 
     const products = await querySQL.getMany();
@@ -56,21 +57,7 @@ export class ProductService {
   }
 
   async findOne(id: number) {
-    const product = await this.productRepo.findOneBy({ id });
-    const size = await this.productSizeRepo.find({
-      where: { product: { id } },
-      relations: { size: true },
-    });
-
-    return {
-      ...product,
-      size: size.map((item) => {
-        return {
-          ...item.size,
-          label: item.size.value,
-        };
-      }),
-    };
+    return await this.productRepo.findOneBy({ id });
   }
 
   async findAllAdmin() {
@@ -83,9 +70,9 @@ export class ProductService {
   }
 
   async update(id: number, body: any) {
-    const { title, price, image, description, category, style, sizes } = body;
+    const { title, price, image, description, category, style, size } = body;
 
-    const sizeMap = sizes.map((item) => item.label);
+    const sizeMap = size.map((item) => item.label);
 
     const product: Product = await this.productRepo.findOne({ where: { id } });
 
@@ -95,7 +82,7 @@ export class ProductService {
     product.image = image;
     product.description = description;
     product.style = style;
-    product.sizes = JSON.stringify(sizeMap);
+    product.size = JSON.stringify(sizeMap);
 
     await this.productRepo.save(product);
 
