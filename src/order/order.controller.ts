@@ -85,4 +85,16 @@ export class OrderController {
     const data = await this.orderService.count(userId);
     return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }
+
+  @Get('/new')
+  async newOrder(@Res() res: any) {
+    const data = await this.orderService.getNewOrder();
+    return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
+  }
+
+  @Get('/has-been-deleted')
+  async orderHasBeenDeleted(@Res() res: any) {
+    const data = await this.orderService.orderHasBeenDeleted();
+    return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
+  }
 }

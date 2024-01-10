@@ -164,4 +164,24 @@ export class OrderService {
 
     return mappedData;
   }
+
+  async getNewOrder() {
+    return await this.orderRepo.find({
+      where: { status: 0 },
+      relations: { product_order: true },
+      order: {
+        created_at: 'DESC',
+      },
+    });
+  }
+
+  async orderHasBeenDeleted() {
+    return await this.orderRepo.find({
+      where: { status: 3 },
+      relations: { product_order: true },
+      order: {
+        created_at: 'DESC',
+      },
+    });
+  }
 }

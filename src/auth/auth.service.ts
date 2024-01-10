@@ -44,7 +44,7 @@ export class AuthService {
   async login(dto: AuthDto) {
     const user = await this.userRepo.findOneBy({ username: dto.username });
 
-    if (!user) throw new BadRequestException('Người dùng không tìm thấy!');
+    if (!user) throw new BadRequestException('User không tìm thấy!');
     const passCompared = bcrypt.compareSync(dto.password, user.hash);
 
     if (!passCompared)
@@ -133,7 +133,7 @@ export class AuthService {
   async changePassword(body: any, userId: number) {
     const user = await this.userRepo.findOneBy({ id: userId });
 
-    if (!user) throw new BadRequestException('Người dùng không tìm thấy!');
+    if (!user) throw new BadRequestException('User không tìm thấy!');
     const passCompared = bcrypt.compareSync(body.oldPassword, user.hash);
 
     if (!passCompared)
