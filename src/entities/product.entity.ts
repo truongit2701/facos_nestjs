@@ -1,15 +1,14 @@
 import {
   Column,
   Entity,
-  ManyToMany,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseModel } from './base.entity';
+import { Discount } from './discount.entity';
 import { ProductSize } from './product-size.entity';
-import { Order } from './order.entity';
-import { Size } from './size.entity';
 
 @Entity('product')
 export class Product extends BaseModel {
@@ -34,9 +33,30 @@ export class Product extends BaseModel {
   @Column({ default: '' })
   style: string;
 
-  @Column({ default: '' })
-  code: string;
+  @Column({ default: 0 })
+  code: number;
 
-  @Column({ nullable: true })
-  size: string;
+  // @Column({ nullable: true })
+  // size: string;
+
+  // @OneToMany(() => ProductSize, (product_size) => product_size.id)
+  // @JoinColumn({
+  //   name: 'product_size',
+  // })
+  // product_size: ProductSize;
+
+  @OneToMany(() => ProductSize, (p_s) => p_s.product)
+  product_sizes: ProductSize[];
+
+  @Column({ default: 1 })
+  status: number;
+  // Tồn hàng
+  @Column({ nullable: true, default: 0 })
+  in_stock: number;
+
+  @ManyToOne(() => Discount, (discount) => discount.id, { nullable: true })
+  @JoinColumn({
+    name: 'discount_id',
+  })
+  discount: Discount;
 }

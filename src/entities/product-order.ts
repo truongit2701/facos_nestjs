@@ -16,7 +16,7 @@ interface ProductSubset
   sizeActive: string;
 }
 
-@Entity('productOrder')
+@Entity('product_order')
 export class ProductOrder extends Product implements ProductSubset {
   @PrimaryGeneratedColumn()
   id: number;

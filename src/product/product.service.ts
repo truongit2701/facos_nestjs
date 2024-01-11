@@ -16,9 +16,10 @@ export class ProductService {
     const { title, price, description, category, style, image, size } =
       createProductDto;
 
-    const code = Math.random() * 100000;
+    const code = Math.random() * 10000000;
+    const code_format = code.toFixed(0);
 
-    const newProduct = await this.productRepo
+    const new_product = await this.productRepo
       .create({
         image,
         price,
@@ -26,19 +27,28 @@ export class ProductService {
         category,
         style,
         title,
-        code: code.toFixed(0).toString(),
-        size: JSON.stringify(size.map((item: any) => item.value)),
+        code: +code_format,
       })
       .save();
 
-    return newProduct;
+    // save product size
+    const data_size_insert = size.map((size_id) => {
+      return {
+        product: { id: new_product.id },
+        size: size_id,
+      };
+    });
+    await this.productSizeRepo.insert(data_size_insert);
+
+    return new_product;
   }
 
   async findNewProduct() {
     return this.productRepo
-      .createQueryBuilder()
-      .limit(8)
-      .orderBy('created_at', 'DESC')
+      .createQueryBuilder('p')
+      .take(8)
+      .orderBy('p.created_at', 'DESC')
+      .where('p.status = :status', { status: 1 })
       .getMany();
   }
 
@@ -50,6 +60,9 @@ export class ProductService {
     querySQL.where('p.title LIKE :keyword', { keyword: `%${keySearch}%` });
     category && querySQL.andWhere('p.category = :category', { category });
     querySQL.orderBy('p.created_at', 'DESC');
+    querySQL.leftJoinAndSelect('p.product_sizes', 'product_size');
+    querySQL.leftJoinAndSelect('product_size.size', 'size');
+    querySQL.andWhere('p.status = :status', { status: 1 });
 
     const products = await querySQL.getMany();
 
@@ -57,13 +70,19 @@ export class ProductService {
   }
 
   async findOne(id: number) {
-    return await this.productRepo.findOneBy({ id });
+    return await this.productRepo.findOne({
+      where: { id },
+      relations: ['product_sizes', 'product_sizes.size'],
+    });
   }
 
   async findAllAdmin() {
     const productList = await this.productRepo
       .createQueryBuilder('product')
       .orderBy('created_at', 'DESC')
+      .leftJoinAndSelect('product.product_sizes', 'p_s')
+      .leftJoinAndSelect('p_s.size', 'size')
+      .where('product.status = :status', { status: 1 })
       .getMany();
 
     return productList;
@@ -72,9 +91,10 @@ export class ProductService {
   async update(id: number, body: any) {
     const { title, price, image, description, category, style, size } = body;
 
-    const sizeMap = size.map((item) => item.label);
-
-    const product: Product = await this.productRepo.findOne({ where: { id } });
+    const product = await this.productRepo.findOne({
+      where: { id },
+      relations: { product_sizes: true },
+    });
 
     product.title = title;
     product.category = category;
@@ -82,26 +102,24 @@ export class ProductService {
     product.image = image;
     product.description = description;
     product.style = style;
-    product.size = JSON.stringify(sizeMap);
 
     await this.productRepo.save(product);
+
+    await this.productSizeRepo.delete({ product: { id: product.id } });
+
+    const data_size_insert = size.map((size_id: number) => {
+      return {
+        product: { id: product.id },
+        size: size_id,
+      };
+    });
+    await this.productSizeRepo.insert(data_size_insert);
 
     return;
   }
 
   async remove(id: number) {
-    await this.productSizeRepo
-      .createQueryBuilder()
-      .delete()
-      .from(ProductSize)
-      .where({ product: { id } })
-      .execute();
-    await this.productSizeRepo
-      .createQueryBuilder()
-      .delete()
-      .from(Product)
-      .where({ id })
-      .execute();
+    await this.productRepo.update({ id }, { status: 0 });
     return;
   }
 }

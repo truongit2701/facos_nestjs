@@ -1,14 +1,8 @@
-import {
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Product } from './product.entity';
 import { Size } from './size.entity';
 
-@Entity('productSize')
+@Entity('product_size')
 export class ProductSize {
   @PrimaryGeneratedColumn()
   id: number;
