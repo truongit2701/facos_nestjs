@@ -12,9 +12,18 @@ export class ProductService {
     @InjectRepository(ProductSize)
     private productSizeRepo: Repository<ProductSize>,
   ) {}
+
   async create(createProductDto: CreateProductDto) {
-    const { title, price, description, category, style, image, size } =
-      createProductDto;
+    const {
+      title,
+      price,
+      description,
+      category,
+      style,
+      image,
+      size,
+      in_stock,
+    } = createProductDto;
 
     const code = Math.random() * 10000000;
     const code_format = code.toFixed(0);
@@ -32,14 +41,15 @@ export class ProductService {
       .save();
 
     // save product size
-    const data_size_insert = size.map((size_id) => {
+
+    const data_size_insert = size.map((size_id: any) => {
       return {
         product: { id: new_product.id },
         size: size_id,
+        stock_quantity: in_stock[size_id],
       };
     });
     await this.productSizeRepo.insert(data_size_insert);
-
     return new_product;
   }
 
@@ -89,8 +99,16 @@ export class ProductService {
   }
 
   async update(id: number, body: any) {
-    const { title, price, image, description, category, style, size } = body;
-
+    const {
+      title,
+      price,
+      image,
+      description,
+      category,
+      style,
+      size,
+      in_stock,
+    } = body;
     const product = await this.productRepo.findOne({
       where: { id },
       relations: { product_sizes: true },
@@ -111,6 +129,7 @@ export class ProductService {
       return {
         product: { id: product.id },
         size: size_id,
+        stock_quantity: in_stock[size_id],
       };
     });
     await this.productSizeRepo.insert(data_size_insert);

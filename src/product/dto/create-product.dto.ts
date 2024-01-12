@@ -21,4 +21,6 @@ export class CreateProductDto {
 
   @IsArray()
   size: object[];
+
+  in_stock: any;
 }

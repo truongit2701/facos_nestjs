@@ -1,4 +1,10 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Product } from './product.entity';
 import { Size } from './size.entity';
 
@@ -18,4 +24,7 @@ export class ProductSize {
     name: 'size_id',
   })
   size: Size;
+
+  @Column({ default: 0 })
+  stock_quantity: number;
 }

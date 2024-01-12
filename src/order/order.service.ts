@@ -116,7 +116,6 @@ export class OrderService {
   }
 
   async reject(id: number, body: any) {
-    console.log(id);
     const order = await this.orderRepo.findOneBy({ id });
 
     order.status = 2; // hủy đơn

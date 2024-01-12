@@ -30,6 +30,7 @@ export class OrderController {
     @Body() createOrderDto: any,
   ) {
     const data = await this.orderService.create(userId, createOrderDto.data);
+    console.log(data);
     return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }
 

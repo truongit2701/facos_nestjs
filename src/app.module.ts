@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { AT_SECRET } from './auth/types';
 import { AtGuard } from './common/guards';
+import { DiscountModule } from './discount/discount.module';
 import { User } from './entities/auth.entity';
 import { Discount } from './entities/discount.entity';
 import { FeedBack } from './entities/feedback.entity';
@@ -22,7 +23,6 @@ import { NotificationModule } from './notification/notification.module';
 import { OrderModule } from './order/order.module';
 import { ProductModule } from './product/product.module';
 import { SizeModule } from './size/size.module';
-import { DiscountModule } from './discount/discount.module';
 
 @Module({
   imports: [

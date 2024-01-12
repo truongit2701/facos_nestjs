@@ -36,23 +36,11 @@ export class Product extends BaseModel {
   @Column({ default: 0 })
   code: number;
 
-  // @Column({ nullable: true })
-  // size: string;
-
-  // @OneToMany(() => ProductSize, (product_size) => product_size.id)
-  // @JoinColumn({
-  //   name: 'product_size',
-  // })
-  // product_size: ProductSize;
-
   @OneToMany(() => ProductSize, (p_s) => p_s.product)
   product_sizes: ProductSize[];
 
   @Column({ default: 1 })
   status: number;
-  // Tồn hàng
-  @Column({ nullable: true, default: 0 })
-  in_stock: number;
 
   @ManyToOne(() => Discount, (discount) => discount.id, { nullable: true })
   @JoinColumn({
