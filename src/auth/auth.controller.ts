@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -102,6 +103,16 @@ export class AuthController {
     @Body() body: any,
   ) {
     const data = await this.authService.changePassword(body, +userId);
+    return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
+  }
+
+  @Post('/grant/:id')
+  async grantPermission(
+    @Res() res: any,
+    @GetCurrentUserId() userId: number,
+    @Param() param: any,
+  ) {
+    const data = await this.authService.grantPermission(+param.id, userId);
     return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }
 }

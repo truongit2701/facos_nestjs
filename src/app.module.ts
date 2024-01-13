@@ -1,27 +1,28 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/auth.entity';
-import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
-import { AtGuard } from './common/guards';
-import { ProductModule } from './product/product.module';
-import { Product } from './entities/product.entity';
 import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
 import { AT_SECRET } from './auth/types';
-import { SizeModule } from './size/size.module';
-import { Size } from './entities/size.entity';
-import { ProductSize } from './entities/product-size.entity';
-import { Order } from './entities/order.entity';
-import { OrderModule } from './order/order.module';
-import { ProductOrder } from './entities/product-order';
-import { FeedbackModule } from './feedback/feedback.module';
+import { AtGuard } from './common/guards';
+import { DiscountModule } from './discount/discount.module';
+import { User } from './entities/auth.entity';
+import { Discount } from './entities/discount.entity';
 import { FeedBack } from './entities/feedback.entity';
-import { IncomeModule } from './income/income.module';
-import { NotificationController } from './notification/notification.controller';
 import { Notify } from './entities/notify.entity';
-import { NotificationService } from './notification/notification.service';
+import { Order } from './entities/order.entity';
+import { ProductOrder } from './entities/product-order.enity';
+import { ProductSize } from './entities/product-size.entity';
+import { Product } from './entities/product.entity';
+import { Size } from './entities/size.entity';
+import { NotiToken } from './entities/token-firebase';
+import { FeedbackModule } from './feedback/feedback.module';
+import { IncomeModule } from './income/income.module';
 import { NotificationModule } from './notification/notification.module';
+import { OrderModule } from './order/order.module';
+import { ProductModule } from './product/product.module';
+import { SizeModule } from './size/size.module';
 
 @Module({
   imports: [
@@ -42,6 +43,8 @@ import { NotificationModule } from './notification/notification.module';
         ProductOrder,
         FeedBack,
         Notify,
+        NotiToken,
+        Discount,
       ],
       synchronize: true,
     }),
@@ -55,6 +58,7 @@ import { NotificationModule } from './notification/notification.module';
     FeedbackModule,
     IncomeModule,
     NotificationModule,
+    DiscountModule,
   ],
   controllers: [],
   providers: [

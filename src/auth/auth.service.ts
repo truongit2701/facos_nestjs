@@ -44,7 +44,7 @@ export class AuthService {
   async login(dto: AuthDto) {
     const user = await this.userRepo.findOneBy({ username: dto.username });
 
-    if (!user) throw new BadRequestException('Người dùng không tìm thấy!');
+    if (!user) throw new BadRequestException('User không tìm thấy!');
     const passCompared = bcrypt.compareSync(dto.password, user.hash);
 
     if (!passCompared)
@@ -98,7 +98,7 @@ export class AuthService {
   }
 
   async findAll() {
-    const users = await this.userRepo.find();
+    const users = await this.userRepo.find({ order: { isAdmin: 'DESC' } });
     return users;
   }
 
@@ -133,7 +133,7 @@ export class AuthService {
   async changePassword(body: any, userId: number) {
     const user = await this.userRepo.findOneBy({ id: userId });
 
-    if (!user) throw new BadRequestException('Người dùng không tìm thấy!');
+    if (!user) throw new BadRequestException('User không tìm thấy!');
     const passCompared = bcrypt.compareSync(body.oldPassword, user.hash);
 
     if (!passCompared)
@@ -144,6 +144,20 @@ export class AuthService {
     await this.userRepo.update({ id: userId }, { hash: hash });
 
     return hash;
+  }
+
+  async grantPermission(userId: number, adminId: number) {
+    const admin = await this.userRepo.findOneBy({ id: adminId });
+    if (!admin.isAdmin)
+      throw new ExceptionResponse(
+        HttpStatus.BAD_REQUEST,
+        'You dont have permission!',
+      );
+    const user = await this.userRepo.findOneBy({ id: userId });
+    const status = user.isAdmin === 1 ? 0 : 1;
+    await this.userRepo.update({ id: userId }, { isAdmin: status });
+
+    return;
   }
 
   async updateRtHash(id: number, rt: string) {

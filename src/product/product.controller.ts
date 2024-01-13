@@ -1,20 +1,17 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Res,
   HttpStatus,
+  Param,
+  Post,
   Query,
+  Res,
 } from '@nestjs/common';
-import { ProductService } from './product.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { BaseResponse } from 'src/utils/base.response';
 import { Public } from 'src/common/decorators';
+import { BaseResponse } from 'src/utils/base.response';
+import { CreateProductDto } from './dto/create-product.dto';
+import { ProductService } from './product.service';
 
 @Controller('product')
 export class ProductController {

@@ -1,14 +1,14 @@
 import {
+  Column,
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Product } from './product.entity';
 import { Size } from './size.entity';
 
-@Entity('productSize')
+@Entity('product_size')
 export class ProductSize {
   @PrimaryGeneratedColumn()
   id: number;
@@ -24,4 +24,7 @@ export class ProductSize {
     name: 'size_id',
   })
   size: Size;
+
+  @Column({ default: 0 })
+  stock_quantity: number;
 }
