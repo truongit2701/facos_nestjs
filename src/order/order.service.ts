@@ -3,9 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { Notify } from 'src/entities/notify.entity';
 import { Order } from 'src/entities/order.entity';
-import { ProductOrder } from 'src/entities/product-order';
+import { ProductOrder } from 'src/entities/product-order.enity';
+import { ProductSize } from 'src/entities/product-size.entity';
 import { Product } from 'src/entities/product.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class OrderService {
@@ -14,16 +15,16 @@ export class OrderService {
     @InjectRepository(Product) private productRepo: Repository<Product>,
     @InjectRepository(ProductOrder)
     private productOrderRepo: Repository<ProductOrder>,
+
+    @InjectRepository(ProductSize)
+    private productSizeRepo: Repository<ProductSize>,
     @InjectRepository(Notify)
     private notiRepo: Repository<Notify>,
   ) {}
 
   async getAllForAdmin() {
     return await this.orderRepo.find({
-      relations: {
-        product_order: true,
-        user: true,
-      },
+      relations: ['user', 'product_order', 'product_order.product'],
       order: {
         status: 'ASC',
         created_at: 'DESC',
@@ -34,14 +35,8 @@ export class OrderService {
   async create(userId: number, createOrderDto: any) {
     const { list, info } = createOrderDto;
     const order = new Order();
-    const totalPrice = list.reduce(
-      (accumulator: any, currentValue: any) =>
-        (accumulator += currentValue.price * currentValue.quantity),
-      0,
-    );
-
     order.orderDate = new Date();
-    order.total = totalPrice;
+    order.total = info.total;
     order.fullName = info.fullName;
     order.address = info.address;
     order.phone = info.phone;
@@ -61,9 +56,19 @@ export class OrderService {
           ...item,
           order: { id: newOrder.id },
           quantity: item.quantity,
+          product_id: item.id,
         })),
       )
       .execute();
+
+    for (const product of list) {
+      await this.productSizeRepo.update(
+        { product: { id: product.id }, size: { id: product.sizeActive.id } },
+        {
+          stock_quantity: () => `stock_quantity - ${product.quantity}`,
+        },
+      );
+    }
 
     return { order_id: newOrder.id };
   }
@@ -71,7 +76,7 @@ export class OrderService {
   async findAll(userId: number) {
     return await this.orderRepo.find({
       where: { user: { id: userId }, status: 0 },
-      relations: { product_order: true },
+      relations: ['product_order', 'product_order.product'],
       order: {
         created_at: 'DESC',
       },
@@ -81,7 +86,7 @@ export class OrderService {
   async findOrderAccepted(userId: number) {
     return await this.orderRepo.find({
       where: { user: { id: userId }, status: 1 },
-      relations: { product_order: true },
+      relations: ['product_order', 'product_order.product'],
       order: {
         created_at: 'DESC',
       },
@@ -91,7 +96,7 @@ export class OrderService {
   async findAllRejected(userId: number) {
     return await this.orderRepo.find({
       where: { user: { id: userId }, status: 2 },
-      relations: { product_order: true },
+      relations: ['product_order', 'product_order.product'],
       order: {
         created_at: 'DESC',
       },
@@ -101,7 +106,7 @@ export class OrderService {
   async findAllDone(userId: number) {
     return await this.orderRepo.find({
       where: { user: { id: userId }, status: 3 },
-      relations: { product_order: true },
+      relations: ['product_order', 'product_order.product'],
       order: {
         created_at: 'DESC',
       },
@@ -111,7 +116,7 @@ export class OrderService {
   async findOne(id: number) {
     return await this.orderRepo.findOne({
       where: { id },
-      relations: { user: true, product_order: true },
+      relations: ['user', 'product_order', 'product_order.product'],
     });
   }
 
@@ -133,6 +138,18 @@ export class OrderService {
         status: 1,
         dateExcepted: date,
         dateAccept: moment(),
+      },
+    );
+  }
+
+  async confirmDelivery(id: number) {
+    await this.orderRepo.update(
+      {
+        id,
+      },
+      {
+        status: 3,
+        dateDelivery: new Date(),
       },
     );
   }
@@ -167,7 +184,7 @@ export class OrderService {
   async getNewOrder() {
     return await this.orderRepo.find({
       where: { status: 0 },
-      relations: { product_order: true },
+      relations: ['product_order', 'product_order.product'],
       order: {
         created_at: 'DESC',
       },
@@ -176,8 +193,18 @@ export class OrderService {
 
   async orderHasBeenDeleted() {
     return await this.orderRepo.find({
-      where: { status: 3 },
-      relations: { product_order: true },
+      where: { status: 2 },
+      relations: ['product_order', 'product_order.product'],
+      order: {
+        created_at: 'DESC',
+      },
+    });
+  }
+
+  async orderDelivering() {
+    return await this.orderRepo.find({
+      where: { status: In([1, 3]) },
+      relations: ['product_order', 'product_order.product'],
       order: {
         created_at: 'DESC',
       },

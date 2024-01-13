@@ -12,7 +12,7 @@ import { Discount } from './entities/discount.entity';
 import { FeedBack } from './entities/feedback.entity';
 import { Notify } from './entities/notify.entity';
 import { Order } from './entities/order.entity';
-import { ProductOrder } from './entities/product-order';
+import { ProductOrder } from './entities/product-order.enity';
 import { ProductSize } from './entities/product-size.entity';
 import { Product } from './entities/product.entity';
 import { Size } from './entities/size.entity';

@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { User } from './auth.entity';
 import { BaseModel } from './base.entity';
-import { ProductOrder } from './product-order';
+import { ProductOrder } from './product-order.enity';
 
 @Entity('order')
 export class Order extends BaseModel {
@@ -34,7 +34,7 @@ export class Order extends BaseModel {
   dateAccept: Date;
 
   @Column({ nullable: true })
-  dateDelivery: string;
+  dateDelivery: Date;
 
   @Column({ nullable: true })
   dateExcepted: string;

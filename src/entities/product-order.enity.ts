@@ -3,13 +3,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseModel } from './base.entity';
-import { Product } from './product.entity';
 import { Order } from './order.entity';
+import { Product } from './product.entity';
 interface ProductSubset
   extends Pick<Product, 'title' | 'price' | 'image' | 'id'>,
     BaseModel {
@@ -17,7 +15,7 @@ interface ProductSubset
 }
 
 @Entity('product_order')
-export class ProductOrder extends Product implements ProductSubset {
+export class ProductOrder extends BaseModel {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -33,6 +31,12 @@ export class ProductOrder extends Product implements ProductSubset {
   })
   order: Order;
 
-  @Column({ nullable: true })
-  product_id: number;
+  // @Column({ nullable: true })
+  // product_id: number;
+
+  @ManyToOne(() => Product, (product) => product.id, { nullable: true })
+  @JoinColumn({
+    name: 'product_id',
+  })
+  product: Product;
 }

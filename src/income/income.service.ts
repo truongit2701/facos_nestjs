@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/auth.entity';
 import { Order } from 'src/entities/order.entity';
-import { ProductOrder } from 'src/entities/product-order';
+import { ProductOrder } from 'src/entities/product-order.enity';
 import { Product } from 'src/entities/product.entity';
 import { Repository } from 'typeorm';
 
@@ -38,14 +38,16 @@ export class IncomeService {
 
   async getStats(time: any) {
     const [year, month] = time.split('-').map(Number);
-    console.log(year, month);
     const getStartDate = (year: number, month: number) =>
       new Date(`${year}-${month < 10 ? `0${month}` : month}-01T00:00:00.000Z`);
     const getEndDate = (year: number, month: number) =>
       new Date(`${year}-${month < 10 ? `0${month}` : month}-30T00:00:00.000Z`);
 
     const timeCondition = {
-      startDate: getStartDate(year, month === 1 ? 12 : month - 1),
+      startDate: getStartDate(
+        month === 1 ? year - 1 : year,
+        month === 1 ? 12 : month,
+      ),
       endDate: getEndDate(year, month),
     };
 
@@ -64,17 +66,17 @@ export class IncomeService {
       .getRawMany();
 
     const orderQuery = this.productOrderRepo
-      .createQueryBuilder('order')
-      .leftJoin('order.order', 'table_order')
-      .andWhere('table_order.status = :status', { status: 3 })
-      .where('order.created_at > :startDate', {
+      .createQueryBuilder('product_order')
+      .leftJoin('product_order.order', 'order')
+      .andWhere('order.status = :status', { status: 3 })
+      .where('order.updated_at > :startDate', {
         startDate: timeCondition.startDate,
       })
-      .andWhere('order.created_at < :endDate', {
+      .andWhere('product_order.updated_at < :endDate', {
         endDate: timeCondition.endDate,
       })
-      .select('EXTRACT(MONTH FROM order.created_at)::integer', 'month')
-      .addGroupBy('EXTRACT(MONTH FROM order.created_at)')
+      .select('EXTRACT(MONTH FROM product_order.updated_at)::integer', 'month')
+      .addGroupBy('EXTRACT(MONTH FROM product_order.updated_at)')
       .addSelect('COUNT(*)', 'count')
       .orderBy('month', 'ASC')
       .getRawMany();
@@ -95,15 +97,15 @@ export class IncomeService {
 
     const adminQuery = this.userRepo
       .createQueryBuilder('user')
-      .where('user.created_at > :startDate', {
+      .where('user.updated_at > :startDate', {
         startDate: timeCondition.startDate,
       })
-      .andWhere('user.created_at < :endDate', {
+      .andWhere('user.updated_at < :endDate', {
         endDate: timeCondition.endDate,
       })
       .andWhere('user.isAdmin != :condition', { condition: 0 })
-      .addGroupBy('EXTRACT(MONTH FROM user.created_at)')
-      .select('EXTRACT(MONTH FROM user.created_at)::integer', 'month')
+      .addGroupBy('EXTRACT(MONTH FROM user.updated_at)')
+      .select('EXTRACT(MONTH FROM user.updated_at)::integer', 'month')
       .addSelect('COUNT(*)', 'count')
       .orderBy('month', 'ASC')
       .getRawMany();
@@ -126,22 +128,14 @@ export class IncomeService {
   async getTopSelling() {
     const data = await this.productOrderRepo
       .createQueryBuilder('po')
-      .select([
-        'po.product_id',
-        'SUM(po.quantity) AS total_quantity',
-        'po.title',
-        'po.price',
-        'po.image',
-        'po.category',
-        'po.style',
-      ])
-      .innerJoin('po.order', 'table_order', 'table_order.status = :status', {
-        status: 3,
-      })
-      .groupBy(
-        'po.product_id, po.title, po.price, po.image, po.category, po.style',
-      )
-      .orderBy('total_quantity', 'DESC')
+      .select('p.title', 'title')
+      .addSelect('p.image', 'image')
+      .addSelect('p.id', 'id')
+      .addSelect('p.price', 'price')
+      .addSelect('SUM(po.quantity)', 'totalQuantity')
+      .leftJoin('po.order', 'o', 'o.status = 3')
+      .leftJoin('po.product', 'p', 'p.id = po.product_id')
+      .groupBy('p.id')
       .limit(3)
       .getRawMany();
     return data;

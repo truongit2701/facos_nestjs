@@ -81,6 +81,12 @@ export class OrderController {
     return res.status(HttpStatus.OK).send(new BaseResponse({}));
   }
 
+  @Post('/confirm-delivery/:id')
+  confirmDelivery(@Res() res: any, @Param('id') id: string) {
+    this.orderService.confirmDelivery(+id);
+    return res.status(HttpStatus.OK).send(new BaseResponse({}));
+  }
+
   @Get('/quantity')
   async count(@Res() res: any, @GetCurrentUserId() userId: number) {
     const data = await this.orderService.count(userId);
@@ -96,6 +102,12 @@ export class OrderController {
   @Get('/has-been-deleted')
   async orderHasBeenDeleted(@Res() res: any) {
     const data = await this.orderService.orderHasBeenDeleted();
+    return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
+  }
+
+  @Get('/delivering')
+  async orderDelivering(@Res() res: any) {
+    const data = await this.orderService.orderDelivering();
     return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }
 }

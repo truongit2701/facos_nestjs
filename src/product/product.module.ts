@@ -4,7 +4,7 @@ import { ProductController } from './product.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from 'src/entities/product.entity';
 import { ProductSize } from 'src/entities/product-size.entity';
-import { ProductOrder } from 'src/entities/product-order';
+import { ProductOrder } from 'src/entities/product-order.enity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product, ProductSize, ProductOrder])],
