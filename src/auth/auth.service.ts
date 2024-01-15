@@ -73,11 +73,15 @@ export class AuthService {
     const user = await this.userRepo.findOneBy({
       id: userId,
     });
-    if (!user) throw new ForbiddenException('Quyền truy cập bị từ chối!');
-
+    if (!user)
+      throw new ForbiddenException(
+        'Access denined! Please logout and login again',
+      );
     const hashCompare = await bcrypt.compare(refreshToken, user.hashedRt);
     if (!hashCompare)
-      throw new ForbiddenException('Quyền truy cập bị từ chối!');
+      throw new ForbiddenException(
+        'Access denined! Please logout and login again',
+      );
 
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refresh_token);

@@ -37,10 +37,12 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  @Post('/logout')
+  @Public()
+  @Post('/logout/:id')
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUserId() userId: number) {
-    this.authService.logout(userId);
+  logout(@Param() param: any) {
+    const id = param.id;
+    this.authService.logout(+id);
   }
 
   @Public()
