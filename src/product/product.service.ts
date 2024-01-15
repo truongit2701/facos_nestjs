@@ -141,4 +141,9 @@ export class ProductService {
     await this.productRepo.update({ id }, { status: 0 });
     return;
   }
+
+  async changeStock(id: number, body: any) {
+    await this.productRepo.update({ id }, { stocking: Number(!body.in_stock) });
+    return;
+  }
 }

@@ -64,4 +64,10 @@ export class ProductController {
     await this.productService.remove(+param.id);
     return res.status(HttpStatus.OK).send(new BaseResponse({}));
   }
+
+  @Post('/change-stock/:id')
+  async changeStock(@Res() res: any, @Param() param: any, @Body() body: any) {
+    await this.productService.changeStock(+param.id, body);
+    return res.status(HttpStatus.OK).send(new BaseResponse({}));
+  }
 }

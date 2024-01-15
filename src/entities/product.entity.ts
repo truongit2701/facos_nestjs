@@ -47,4 +47,7 @@ export class Product extends BaseModel {
     name: 'discount_id',
   })
   discount: Discount;
+
+  @Column({ default: 1 })
+  stocking: number;
 }
