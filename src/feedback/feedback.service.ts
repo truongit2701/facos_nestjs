@@ -4,6 +4,7 @@ import { User } from 'src/entities/auth.entity';
 import { FeedBack } from 'src/entities/feedback.entity';
 import { Order } from 'src/entities/order.entity';
 import { ProductOrder } from 'src/entities/product-order.enity';
+import { Product } from 'src/entities/product.entity';
 import { ExceptionResponse } from 'src/utils/exception.response';
 import { Repository } from 'typeorm';
 
@@ -54,5 +55,20 @@ export class FeedbackService {
       // skip,
       order: { created_at: 'DESC' },
     });
+  }
+
+  async getAllForAdmin() {
+    const data = await this.feedbackRepo
+      .createQueryBuilder('fb')
+      .leftJoinAndSelect(Product, 'product', 'product.id = fb.product_id')
+      .orderBy('fb.rating_point', 'DESC')
+      .select([
+        'product.title',
+        'product.image',
+        'fb.rating_point',
+        'fb.content',
+      ])
+      .getRawMany();
+    return data;
   }
 }

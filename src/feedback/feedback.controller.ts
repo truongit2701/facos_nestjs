@@ -33,4 +33,10 @@ export class FeedbackController {
     const data = await this.feedbackService.getList(param);
     return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }
+
+  @Get()
+  async getAllForAdmin(@Res() res: any) {
+    const data = await this.feedbackService.getAllForAdmin();
+    return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
+  }
 }
