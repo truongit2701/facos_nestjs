@@ -39,4 +39,10 @@ export class FeedbackController {
     const data = await this.feedbackService.getAllForAdmin();
     return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }
+
+  @Post('anwser/:id')
+  async anwser(@Res() res: any, @Param() param: any, @Body() body: any) {
+    const data = await this.feedbackService.anwser(+param.id, body);
+    return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
+  }
 }

@@ -51,9 +51,7 @@ export class FeedbackService {
     return await this.feedbackRepo.find({
       where: { product: { id: productId } },
       relations: { user: true },
-      // take,
-      // skip,
-      order: { created_at: 'DESC' },
+      order: { created_at: 'DESC', rating_point: 'DESC' },
     });
   }
 
@@ -61,14 +59,28 @@ export class FeedbackService {
     const data = await this.feedbackRepo
       .createQueryBuilder('fb')
       .leftJoinAndSelect(Product, 'product', 'product.id = fb.product_id')
+      .leftJoinAndSelect(User, 'user', 'user.id = fb.user_id')
       .orderBy('fb.rating_point', 'DESC')
+      .addOrderBy('fb.created_at', 'DESC')
       .select([
         'product.title',
         'product.image',
         'fb.rating_point',
         'fb.content',
+        'user.fullName',
+        'fb.id',
+        'fb.admin_anwser',
       ])
       .getRawMany();
     return data;
+  }
+
+  async anwser(id: number, body: any) {
+    return await this.feedbackRepo.update(
+      { id },
+      {
+        admin_anwser: body.anwser,
+      },
+    );
   }
 }
