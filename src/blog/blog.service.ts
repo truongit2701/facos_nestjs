@@ -28,10 +28,13 @@ export class BlogService {
   }
 
   async get() {
-    return await this.blogRepo.find({
-      relations: { author: true },
-      order: { created_at: 'DESC' },
-    });
+    return await this.blogRepo
+      .createQueryBuilder('b')
+      .leftJoinAndSelect('b.author', 'author')
+      .leftJoinAndSelect('b.comments', 'comments')
+      .orderBy('b.likes', 'ASC')
+      .addOrderBy('b.created_at', 'DESC')
+      .getMany();
   }
   async reaction(id: number, user_id: number, type: number) {
     const likes =

@@ -108,7 +108,8 @@ export class AuthService {
 
   async delete(adminId: number, id: number) {
     const userAdmin = await this.userRepo.findOneBy({ id: adminId });
-    if (userAdmin.isAdmin) {
+    console.log('♥️ ~ AuthService ~ delete ~ userAdmin:', userAdmin);
+    if (!userAdmin.isAdmin) {
       throw new ExceptionResponse(
         HttpStatus.BAD_REQUEST,
         'Bạn không có quyền này!',
@@ -116,7 +117,10 @@ export class AuthService {
       );
     }
 
-    await this.userRepo.delete({ id });
+    const user = await this.userRepo.findOneBy({ id });
+
+    const is_quit = user.is_quit === 1 ? 0 : 1;
+    await this.userRepo.update({ id }, { is_quit: is_quit });
     return;
   }
 
