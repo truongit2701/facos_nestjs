@@ -41,4 +41,15 @@ export class BlogController {
     const data = await this.blogService.detail(param.id);
     return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }
+
+  @Post('reaction/:id')
+  async reaction(
+    @GetCurrentUserId() user_id: number,
+    @Res() res: any,
+    @Param() param: any,
+    @Body() body: any,
+  ) {
+    const data = await this.blogService.reaction(+param.id, user_id, body.type);
+    return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
+  }
 }

@@ -33,13 +33,40 @@ export class BlogService {
       order: { created_at: 'DESC' },
     });
   }
+  async reaction(id: number, user_id: number, type: number) {
+    const likes =
+      type === 0
+        ? () => `ARRAY_REMOVE(likes, '${+user_id}')`
+        : () => `array_cat(likes ,ARRAY[${+user_id}])`;
 
+    return await this.blogRepo.update({ id: +id }, { likes });
+  }
   async detail(id: number) {
-    return await this.blogRepo.findOne({
+    const blog = await this.blogRepo.findOne({
       where: {
         id,
       },
-      relations: { author: true },
+      relations: [
+        'comments',
+        'comments.author',
+        'author',
+        'comments.children',
+        'comments.children.author',
+      ],
     });
+
+    if (blog) {
+      blog.comments = blog.comments.sort((a, b) => {
+        return b.created_at.getTime() - a.created_at.getTime();
+      });
+
+      blog.comments.forEach((comment) => {
+        comment.children = comment.children.sort((a, b) => {
+          return b.created_at.getTime() - a.created_at.getTime();
+        });
+      });
+    }
+
+    return blog;
   }
 }
