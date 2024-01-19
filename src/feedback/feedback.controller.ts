@@ -16,13 +16,14 @@ import { BaseResponse } from 'src/utils/base.response';
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
-  @Post()
+  @Post('/:id')
   async create(
     @Res() res: any,
     @GetCurrentUserId() userId: number,
     @Body() body: any,
+    @Param() param: any,
   ) {
-    const data = await this.feedbackService.create(userId, body);
+    const data = await this.feedbackService.create(userId, body, +param.id);
     return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }
 
@@ -30,6 +31,18 @@ export class FeedbackController {
   @Get(':id')
   async get(@Res() res: any, @Param() param: any) {
     const data = await this.feedbackService.getList(param);
+    return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
+  }
+
+  @Get()
+  async getAllForAdmin(@Res() res: any) {
+    const data = await this.feedbackService.getAllForAdmin();
+    return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
+  }
+
+  @Post('anwser/:id')
+  async anwser(@Res() res: any, @Param() param: any, @Body() body: any) {
+    const data = await this.feedbackService.anwser(+param.id, body);
     return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }
 }

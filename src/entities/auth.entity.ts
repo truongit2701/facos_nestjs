@@ -29,4 +29,7 @@ export class User extends BaseModel {
 
   @Column({ default: '' })
   phone: string;
+
+  @Column({ default: 1 }) // 1: true, 2: false
+  is_quit: number;
 }

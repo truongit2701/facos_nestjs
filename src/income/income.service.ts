@@ -27,7 +27,7 @@ export class IncomeService {
       .andWhere('order.created_at <= :endDate', {
         endDate: `${year}-12-31T23:59:59.999Z`,
       })
-      .andWhere('order.status != :status', { status: 3 })
+      .andWhere('order.status = :status', { status: 3 })
       .groupBy(
         'EXTRACT(YEAR FROM order.created_at), EXTRACT(MONTH FROM order.created_at)',
       )
@@ -132,9 +132,10 @@ export class IncomeService {
       .addSelect('p.image', 'image')
       .addSelect('p.id', 'id')
       .addSelect('p.price', 'price')
-      .addSelect('SUM(po.quantity)', 'totalQuantity')
+      .addSelect('SUM(po.quantity) AS totalQuantity')
       .leftJoin('po.order', 'o', 'o.status = 3')
       .leftJoin('po.product', 'p', 'p.id = po.product_id')
+      .orderBy('totalQuantity', 'DESC')
       .groupBy('p.id')
       .limit(3)
       .getRawMany();
@@ -144,7 +145,7 @@ export class IncomeService {
   async getSummary() {
     const revenue = await this.orderRepo
       .createQueryBuilder('order')
-      .where('order.status != :status', { status: 3 })
+      .where('order.status = :status', { status: 3 })
       .select('SUM(order.total)', 'revenue')
       .getRawOne();
 

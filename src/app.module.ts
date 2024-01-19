@@ -23,6 +23,10 @@ import { NotificationModule } from './notification/notification.module';
 import { OrderModule } from './order/order.module';
 import { ProductModule } from './product/product.module';
 import { SizeModule } from './size/size.module';
+import { BlogModule } from './blog/blog.module';
+import { Blog } from './entities/blog.entity';
+import { CommentBlog } from './entities/comment-blog.entity';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -45,6 +49,8 @@ import { SizeModule } from './size/size.module';
         Notify,
         NotiToken,
         Discount,
+        Blog,
+        CommentBlog,
       ],
       synchronize: true,
     }),
@@ -59,6 +65,8 @@ import { SizeModule } from './size/size.module';
     IncomeModule,
     NotificationModule,
     DiscountModule,
+    BlogModule,
+    CommentModule,
   ],
   controllers: [],
   providers: [

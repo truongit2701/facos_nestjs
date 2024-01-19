@@ -30,4 +30,9 @@ export class FeedBack extends BaseModel {
   @ManyToOne(() => Product, (product) => product.id)
   @JoinColumn({ name: 'product_id' })
   product: Product;
+
+  @Column({
+    default: '',
+  })
+  admin_anwser: string;
 }

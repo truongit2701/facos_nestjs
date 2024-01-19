@@ -56,7 +56,7 @@ export class OrderService {
           ...item,
           order: { id: newOrder.id },
           quantity: item.quantity,
-          product_id: item.id,
+          product: { id: item.id },
         })),
       )
       .execute();

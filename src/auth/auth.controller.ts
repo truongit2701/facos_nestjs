@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Param,
   Post,
-  Query,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -14,10 +13,10 @@ import { Public } from 'src/common/decorators';
 import { GetCurrentUserId } from 'src/common/decorators/get-current-user-id.decorator';
 import { GetCurrentUser } from 'src/common/decorators/get-current-user.decorator';
 import { RtGuard } from 'src/common/guards';
+import { BaseResponse } from 'src/utils/base.response';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 import { Tokens } from './types';
-import { BaseResponse } from 'src/utils/base.response';
 
 @Controller('auth')
 export class AuthController {
@@ -37,10 +36,12 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  @Post('/logout')
+  @Public()
+  @Post('/logout/:id')
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUserId() userId: number) {
-    this.authService.logout(userId);
+  logout(@Param() param: any) {
+    const id = param.id;
+    this.authService.logout(+id);
   }
 
   @Public()
@@ -72,7 +73,7 @@ export class AuthController {
     return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
   }
 
-  @Post('/delete')
+  @Post('/delete/:id')
   @HttpCode(HttpStatus.OK)
   async deleteUser(
     @Res() res: any,
