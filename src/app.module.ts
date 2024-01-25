@@ -6,9 +6,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { AT_SECRET } from './auth/types';
 import { AtGuard } from './common/guards';
-import { DiscountModule } from './discount/discount.module';
+import { PromotionModule } from './promotion/promotion.module';
 import { User } from './entities/auth.entity';
-import { Discount } from './entities/discount.entity';
+import { Promotion } from './entities/promotion.entity';
 import { FeedBack } from './entities/feedback.entity';
 import { Notify } from './entities/notify.entity';
 import { Order } from './entities/order.entity';
@@ -27,6 +27,7 @@ import { BlogModule } from './blog/blog.module';
 import { Blog } from './entities/blog.entity';
 import { CommentBlog } from './entities/comment-blog.entity';
 import { CommentModule } from './comment/comment.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -48,7 +49,7 @@ import { CommentModule } from './comment/comment.module';
         FeedBack,
         Notify,
         NotiToken,
-        Discount,
+        Promotion,
         Blog,
         CommentBlog,
       ],
@@ -64,9 +65,10 @@ import { CommentModule } from './comment/comment.module';
     FeedbackModule,
     IncomeModule,
     NotificationModule,
-    DiscountModule,
+    PromotionModule,
     BlogModule,
     CommentModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [],
   providers: [

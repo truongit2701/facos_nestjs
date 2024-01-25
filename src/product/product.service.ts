@@ -4,6 +4,7 @@ import { ProductSize } from 'src/entities/product-size.entity';
 import { Product } from 'src/entities/product.entity';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
+import { Promotion } from 'src/entities';
 
 @Injectable()
 export class ProductService {
@@ -12,6 +13,18 @@ export class ProductService {
     @InjectRepository(ProductSize)
     private productSizeRepo: Repository<ProductSize>,
   ) {}
+
+  generateSKU(product: any) {
+    // Lấy các thuộc tính của sản  phẩm
+    const { id, title, category } = product;
+
+    // Xử lý và tạo SKU
+    const formattedTitle = title.replace(/\s+/g, '-').toLowerCase(); // Chuẩn hóa tiêu đề
+    const formattedCategory = category.replace(/\s+/g, '-').toLowerCase(); // Chuẩn hóa danh mục
+    const sku = `${formattedCategory}-${formattedTitle}-${id}`; // Kết hợp các giá trị để tạo SKU
+
+    return sku;
+  }
 
   async create(createProductDto: CreateProductDto) {
     const {
@@ -25,9 +38,6 @@ export class ProductService {
       in_stock,
     } = createProductDto;
 
-    const code = Math.random() * 10000000;
-    const code_format = code.toFixed(0);
-
     const new_product = await this.productRepo
       .create({
         image,
@@ -36,9 +46,10 @@ export class ProductService {
         category,
         style,
         title,
-        code: +code_format,
       })
       .save();
+
+    const code = this.generateSKU({ id: new_product.id, title, category });
 
     // save product size
 
@@ -50,6 +61,8 @@ export class ProductService {
       };
     });
     await this.productSizeRepo.insert(data_size_insert);
+
+    await this.productRepo.update({ id: new_product.id }, { code: code });
     return new_product;
   }
 
@@ -73,6 +86,7 @@ export class ProductService {
     querySQL.leftJoinAndSelect('p.product_sizes', 'product_size');
     querySQL.leftJoinAndSelect('product_size.size', 'size');
     querySQL.andWhere('p.status = :status', { status: 1 });
+    querySQL.leftJoinAndSelect('p.promotion', 'promotion');
 
     const products = await querySQL.getMany();
 
@@ -94,6 +108,19 @@ export class ProductService {
       .leftJoinAndSelect('p_s.size', 'size')
       .where('product.status = :status', { status: 1 })
       .getMany();
+
+    // for (const p of productList) {
+    //   await this.productRepo.update(
+    //     { id: p.id },
+    //     {
+    //       code: this.generateSKU({
+    //         id: p.id,
+    //         title: p.title,
+    //         category: p.category,
+    //       }),
+    //     },
+    //   );
+    // }
 
     return productList;
   }

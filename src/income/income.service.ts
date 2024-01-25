@@ -89,6 +89,7 @@ export class IncomeService {
       .andWhere('product.created_at < :endDate', {
         endDate: timeCondition.endDate,
       })
+      .andWhere('product.status = :status', { status: 1 })
       .select('DATE_PART(\'month\', "created_at")', 'month')
       .addGroupBy("DATE_PART('month', product.created_at)")
       .addSelect('COUNT(*)', 'count')
@@ -154,7 +155,7 @@ export class IncomeService {
       .where('u.isAdmin != :isAdmin', { isAdmin: 1 })
       .getCount();
 
-    const product = await this.productRepo.count();
+    const product = await this.productRepo.count({ where: { status: 1 } });
 
     return {
       ...revenue,

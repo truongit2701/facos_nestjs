@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseModel } from './base.entity';
-import { Discount } from './discount.entity';
+import { Promotion } from './promotion.entity';
 import { ProductSize } from './product-size.entity';
 
 @Entity('product')
@@ -21,6 +21,9 @@ export class Product extends BaseModel {
   @Column()
   price: string;
 
+  @Column({ default: 0 })
+  import_price: string;
+
   @Column()
   image: string;
 
@@ -33,8 +36,8 @@ export class Product extends BaseModel {
   @Column({ default: '' })
   style: string;
 
-  @Column({ default: 0 })
-  code: number;
+  @Column({ default: '' })
+  code: string;
 
   @OneToMany(() => ProductSize, (p_s) => p_s.product)
   product_sizes: ProductSize[];
@@ -42,11 +45,11 @@ export class Product extends BaseModel {
   @Column({ default: 1 })
   status: number;
 
-  @ManyToOne(() => Discount, (discount) => discount.id, { nullable: true })
+  @ManyToOne(() => Promotion, (promotion) => promotion.id, { nullable: true })
   @JoinColumn({
-    name: 'discount_id',
+    name: 'promotion_id',
   })
-  discount: Discount;
+  promotion: Promotion;
 
   @Column({ default: 1 })
   stocking: number;

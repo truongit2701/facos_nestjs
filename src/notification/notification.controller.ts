@@ -10,6 +10,7 @@ export class NotificationController {
   private fcm: FCM;
 
   constructor(private notificationService: NotificationService) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const fs = require('fs');
 
     const path =
