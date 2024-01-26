@@ -11,17 +11,29 @@ import {
 import { GetCurrentUserId, Public } from 'src/common/decorators';
 import { BaseResponse } from 'src/utils/base.response';
 import { OrderService } from './order.service';
+import * as FCM from 'fcm-node';
+import * as admin from 'firebase-admin';
 
 @Controller('order')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  private fcm: FCM;
 
-  // @Public()
-  // @Post('checkout')
-  // test() {
-  //   const result = this.orderService.test();
-  //   return result;
-  // }
+  constructor(private readonly orderService: OrderService) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const fs = require('fs');
+
+    const path =
+      'src/facos-notification-fec24-firebase-adminsdk-zgwam-6d93c5ca18.json';
+    const fileContent = fs.readFileSync(path, 'utf-8');
+    const serviceAccount = JSON.parse(fileContent);
+
+    // if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+    // }
+    this.fcm = new FCM(process.env.FIREBASE_SERVER_NOTIFY_KEY);
+  }
 
   @Post()
   async create(
@@ -29,8 +41,48 @@ export class OrderController {
     @GetCurrentUserId() userId: number,
     @Body() createOrderDto: any,
   ) {
-    const data = await this.orderService.create(userId, createOrderDto.data);
-    return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
+    try {
+      const data = await this.orderService.create(userId, createOrderDto.data);
+      const title = 'Mango have a new order';
+      const noti = await this.orderService.createNoti({ ...data, title });
+
+      const tokens = await this.orderService.getFirebaseAdminTokens();
+
+      console.log(
+        '---------------- payload create order admin send notify ---------------',
+        {
+          registration_ids: tokens,
+          // to: tokens[0],
+          notification: {
+            title,
+            body: '',
+            obj: noti,
+          },
+        },
+      );
+
+      const message = {
+        registration_ids: tokens,
+        // to: tokens[0],
+        notification: {
+          title,
+          body: '',
+          obj: noti,
+        },
+      };
+
+      await this.fcm.send(message, function (err, response) {
+        if (err) {
+          console.log('Có lỗi xảy ra khi gửi thông báo tạo đơn hàng:', err);
+          return;
+        } else {
+          console.log('Gửi thông báo tạo đơn hàng thành công ', response);
+        }
+      });
+      return res.status(HttpStatus.OK).send(new BaseResponse({ data }));
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   @Get()

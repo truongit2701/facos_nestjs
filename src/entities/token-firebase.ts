@@ -11,4 +11,7 @@ export class NotiToken extends BaseModel {
 
   @Column({ default: '' })
   token_key: string;
+
+  @Column({ default: 0 })
+  is_admin: number;
 }

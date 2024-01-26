@@ -7,6 +7,7 @@ import { Product } from 'src/entities/product.entity';
 import { ProductOrder } from 'src/entities/product-order.enity';
 import { Notify } from 'src/entities/notify.entity';
 import { ProductSize } from 'src/entities/product-size.entity';
+import { NotiToken } from 'src/entities/token-firebase';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ProductSize } from 'src/entities/product-size.entity';
       ProductOrder,
       Notify,
       ProductSize,
+      NotiToken,
     ]),
   ],
   controllers: [OrderController],

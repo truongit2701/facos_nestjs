@@ -7,60 +7,14 @@ import { NotificationService } from './notification.service';
 
 @Controller('notify')
 export class NotificationController {
-  private fcm: FCM;
-
   constructor(private notificationService: NotificationService) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const fs = require('fs');
-
-    const path =
-      'src/facos-notification-fec24-firebase-adminsdk-zgwam-6d93c5ca18.json';
-    const fileContent = fs.readFileSync(path, 'utf-8');
-    const serviceAccount = JSON.parse(fileContent);
-
-    // if (!admin.apps.length) {
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
-    // }
-    this.fcm = new FCM(process.env.FIREBASE_SERVER_NOTIFY_KEY);
   }
 
   @Public()
   @Post('/send-noti')
-  async sendNotification(
-    @Body() body: { title: string; content: string; token_key: string },
-  ): Promise<any> {
-    try {
-      const noti = await this.notificationService.createNoti(body);
-
-      const message = {
-        to: body.token_key,
-        notification: {
-          title: body.title,
-          body: body.content,
-          obj: noti,
-        },
-      };
-      console.log({
-        to: body.token_key,
-        notification: {
-          title: body.title,
-          body: body.content,
-          obj: noti,
-        },
-      });
-      await this.fcm.send(message, function (err, response) {
-        if (err) {
-          console.log('Có lỗi xảy ra:', err);
-          return;
-        } else {
-          console.log('Đã gửi thành công, responsee:zzz ', response);
-        }
-      });
-    } catch (error) {
-      return { error: error.message };
-    }
+  async sendNotification(): Promise<any> {
+    return;
   }
 
   @Post('create-token')

@@ -1,18 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
-import { Notify } from 'src/entities/notify.entity';
 import { Order } from 'src/entities/order.entity';
 import { ProductOrder } from 'src/entities/product-order.enity';
 import { ProductSize } from 'src/entities/product-size.entity';
 import { Product } from 'src/entities/product.entity';
 import { In, Repository } from 'typeorm';
+import { Notify } from 'src/entities/notify.entity';
+import { NotiToken } from 'src/entities/token-firebase';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order) private orderRepo: Repository<Order>,
     @InjectRepository(Product) private productRepo: Repository<Product>,
+    @InjectRepository(Notify) private notifyRepo: Repository<Notify>,
+    @InjectRepository(NotiToken) private notiTokenRepo: Repository<NotiToken>,
     @InjectRepository(ProductOrder)
     private productOrderRepo: Repository<ProductOrder>,
 
@@ -71,6 +74,29 @@ export class OrderService {
     }
 
     return { order_id: newOrder.id };
+  }
+
+  async createNoti(body: any) {
+    const { title, order_id } = body;
+
+    const data = this.notifyRepo.create({
+      title,
+      content: '',
+      type: 1,
+      action_id: order_id,
+    });
+
+    await this.notifyRepo.save(data);
+
+    return data;
+  }
+
+  async getFirebaseAdminTokens() {
+    const admin_tokens_firebase = await this.notiTokenRepo.findBy({
+      is_admin: 1,
+    });
+
+    return admin_tokens_firebase.map((i) => i.token_key);
   }
 
   async findAll(userId: number) {

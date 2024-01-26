@@ -1,5 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/entities/auth.entity';
 import { Notify } from 'src/entities/notify.entity';
 import { NotiToken } from 'src/entities/token-firebase';
 import { ExceptionResponse } from 'src/utils/exception.response';
@@ -10,19 +11,18 @@ export class NotificationService {
   constructor(
     @InjectRepository(Notify) private notifiRepo: Repository<Notify>,
     @InjectRepository(NotiToken) private notiTokenRepo: Repository<NotiToken>,
+    @InjectRepository(User) private userRepo: Repository<User>,
   ) {}
 
   async getTotal() {
-    const count = await this.notifiRepo
+    return await this.notifiRepo
       .createQueryBuilder('n')
       .where('n.is_seen = :is_seen', { is_seen: 0 })
       .getCount();
-    return count;
   }
 
   async getList() {
-    const list = await this.notifiRepo.find({ order: { id: 'DESC' } });
-    return list;
+    return await this.notifiRepo.find({ order: { id: 'DESC' } });
   }
 
   async readNoti() {
@@ -49,26 +49,31 @@ export class NotificationService {
   }
 
   async createToken(user_id: number, body: any): Promise<any> {
-    if (body?.token)
-      throw new ExceptionResponse(HttpStatus.BAD_REQUEST, 'Token đâu?', null);
-    const notiToken = await this.notiTokenRepo.findOneBy({ user_id });
+    if (!Object.keys(body).length || !body.data)
+      throw new ExceptionResponse(HttpStatus.BAD_REQUEST, 'Token đâu?');
+    const notiToken = await this.notiTokenRepo.findOneBy({
+      token_key: body.data,
+    });
+
+    const user = await this.userRepo.findOneBy({ id: user_id });
 
     if (notiToken) {
       await this.notiTokenRepo.save({
         ...notiToken,
-        token_key: body.data.token,
+        token_key: body.data,
+        is_admin: user.isAdmin,
       });
 
       return notiToken;
     }
-    const data = await this.notiTokenRepo
+
+    return await this.notiTokenRepo
       .create({
         user_id,
-        token_key: body.data.token,
+        token_key: body.data,
+        is_admin: user.isAdmin,
       })
       .save();
-
-    return data;
   }
 
   async getDataNoti() {
